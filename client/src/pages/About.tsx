@@ -112,8 +112,8 @@ export default function About() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-md bg-gradient-to-br from-[#00a884] to-[#25D366] flex items-center justify-center shrink-0 shadow-md">
-                    <SiWhatsapp className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center shrink-0">
+                    <SiWhatsapp className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <div>
                     <p className="font-medium mb-1">WhatsApp</p>
@@ -131,7 +131,6 @@ export default function About() {
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 shadow-md"
                 data-testid="button-contact-whatsapp"
               >
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">

@@ -27,10 +27,10 @@ export default function Footer() {
                 href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-md bg-gradient-to-br from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] flex items-center justify-center transition-all shadow-md"
+                className="w-9 h-9 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
                 data-testid="link-footer-whatsapp"
               >
-                <SiWhatsapp className="w-4 h-4 text-white" />
+                <SiWhatsapp className="w-4 h-4 text-primary-foreground" />
               </a>
               <a
                 href="https://facebook.com"

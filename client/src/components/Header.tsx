@@ -28,10 +28,14 @@ export default function Header() {
   const whatsappMessage = "Hello! I'm interested in learning more about your vehicles.";
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
+  const isHomePage = location === "/";
+  
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-background/95 backdrop-blur-sm border-b" : "bg-transparent"
+        isScrolled || !isHomePage 
+          ? "bg-background border-b shadow-sm" 
+          : "bg-background/80 backdrop-blur-md border-b border-white/10"
       }`}
     >
       <div className="container mx-auto max-w-7xl px-6 lg:px-8">
@@ -51,7 +55,7 @@ export default function Header() {
               className="h-12 w-12 object-contain"
             />
             <div className="text-xl font-bold tracking-tight">
-              <span className={isScrolled ? "text-foreground" : "text-white"}>
+              <span className={isScrolled || !isHomePage ? "text-foreground" : "text-white"}>
                 Al Qalam Motors
               </span>
             </div>
@@ -69,7 +73,7 @@ export default function Header() {
                 className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                   location === link.href
                     ? "text-primary"
-                    : isScrolled
+                    : isScrolled || !isHomePage
                     ? "text-foreground"
                     : "text-white"
                 }`}
@@ -84,7 +88,6 @@ export default function Header() {
             <Button
               asChild
               variant="default"
-              className="bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 shadow-md"
               data-testid="button-whatsapp-contact"
             >
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
@@ -100,9 +103,9 @@ export default function Header() {
             data-testid="button-mobile-menu"
           >
             {isMobileMenuOpen ? (
-              <X className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-white"}`} />
+              <X className={`w-6 h-6 ${isScrolled || !isHomePage ? "text-foreground" : "text-white"}`} />
             ) : (
-              <Menu className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-white"}`} />
+              <Menu className={`w-6 h-6 ${isScrolled || !isHomePage ? "text-foreground" : "text-white"}`} />
             )}
           </button>
         </div>
@@ -131,7 +134,7 @@ export default function Header() {
             <Button
               asChild
               variant="default"
-              className="bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 w-full shadow-md"
+              className="w-full"
               data-testid="button-mobile-whatsapp"
             >
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">

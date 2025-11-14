@@ -23,9 +23,15 @@ export default function CarDetails() {
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Vehicle not found</h1>
             <Button asChild variant="default">
-              <Link href="/inventory">
-                <a>Back to Inventory</a>
-              </Link>
+              <a 
+                href="/inventory"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href = "/inventory";
+                }}
+              >
+                Back to Inventory
+              </a>
             </Button>
           </div>
         </main>
@@ -58,12 +64,16 @@ export default function CarDetails() {
             className="mb-6"
             data-testid="button-back-to-inventory"
           >
-            <Link href="/inventory">
-              <a>
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Back to Inventory
-              </a>
-            </Link>
+            <a 
+              href="/inventory"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = "/inventory";
+              }}
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back to Inventory
+            </a>
           </Button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -156,7 +166,7 @@ export default function CarDetails() {
               <Button
                 asChild
                 size="lg"
-                className="w-full bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 text-base font-semibold shadow-md"
+                className="w-full text-base font-semibold"
                 data-testid="button-whatsapp-inquiry"
               >
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">

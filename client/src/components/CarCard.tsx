@@ -17,8 +17,14 @@ export default function CarCard({ car }: CarCardProps) {
 
   return (
     <Card className="overflow-hidden hover-elevate group" data-testid={`card-car-${car.id}`}>
-      <Link href={`/car/${car.id}`}>
-        <div className="cursor-pointer">
+      <a 
+        href={`/car/${car.id}`}
+        onClick={(e) => {
+          e.preventDefault();
+          window.location.href = `/car/${car.id}`;
+        }}
+        className="block cursor-pointer"
+      >
           <div className="aspect-[4/3] overflow-hidden bg-muted">
             <img
               src={car.images[0]}
@@ -61,8 +67,7 @@ export default function CarCard({ car }: CarCardProps) {
               </div>
             </div>
           </CardContent>
-        </div>
-      </Link>
+      </a>
       <CardFooter className="p-6 pt-0 flex gap-3">
         <Button
           asChild
@@ -70,19 +75,25 @@ export default function CarCard({ car }: CarCardProps) {
           className="flex-1"
           data-testid={`button-view-details-${car.id}`}
         >
-          <Link href={`/car/${car.id}`}>
-            <a>View Details</a>
-          </Link>
+          <a 
+            href={`/car/${car.id}`}
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = `/car/${car.id}`;
+            }}
+          >
+            View Details
+          </a>
         </Button>
         <Button
           asChild
           variant="outline"
           size="icon"
-          className="shrink-0 bg-gradient-to-br from-[#00a884]/10 to-[#25D366]/10 border-[#00a884]/30 hover:bg-gradient-to-br hover:from-[#00a884]/20 hover:to-[#25D366]/20"
+          className="shrink-0"
           data-testid={`button-whatsapp-${car.id}`}
         >
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            <SiWhatsapp className="w-4 h-4 text-[#00a884]" />
+            <SiWhatsapp className="w-4 h-4" />
           </a>
         </Button>
       </CardFooter>

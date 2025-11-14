@@ -35,14 +35,21 @@ export default function Hero() {
               className="text-base font-semibold"
               data-testid="button-browse-inventory"
             >
-              <Link href="/inventory">
-                <a>Browse Inventory</a>
-              </Link>
+              <a 
+                href="/inventory"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href = "/inventory";
+                }}
+              >
+                Browse Inventory
+              </a>
             </Button>
             <Button
               asChild
               size="lg"
-              className="text-base font-semibold bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 shadow-lg"
+              variant="outline"
+              className="text-base font-semibold bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20"
               data-testid="button-hero-whatsapp"
             >
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
