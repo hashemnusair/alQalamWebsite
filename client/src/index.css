@@ -18,16 +18,16 @@
   --sidebar: 0 0% 96%;
   --sidebar-foreground: 0 0% 9%;
   --sidebar-border: 0 0% 91%;
-  --sidebar-primary: 220 85% 42%;
-  --sidebar-primary-foreground: 220 85% 98%;
+  --sidebar-primary: 200 10% 45%;
+  --sidebar-primary-foreground: 0 0% 98%;
   --sidebar-accent: 220 6% 88%;
   --sidebar-accent-foreground: 0 0% 9%;
-  --sidebar-ring: 220 85% 42%;
+  --sidebar-ring: 200 10% 45%;
   --popover: 0 0% 94%;
   --popover-foreground: 0 0% 9%;
   --popover-border: 0 0% 89%;
-  --primary: 220 85% 42%;
-  --primary-foreground: 220 85% 98%;
+  --primary: 200 10% 45%;
+  --primary-foreground: 0 0% 98%;
   --secondary: 220 5% 90%;
   --secondary-foreground: 0 0% 9%;
   --muted: 220 4% 92%;
@@ -37,7 +37,7 @@
   --destructive: 0 84% 45%;
   --destructive-foreground: 0 84% 98%;
   --input: 0 0% 75%;
-  --ring: 220 85% 42%;
+  --ring: 200 10% 45%;
   --chart-1: 220 70% 35%;
   --chart-2: 200 65% 38%;
   --chart-3: 240 60% 40%;
@@ -102,16 +102,16 @@
   --sidebar: 0 0% 11%;
   --sidebar-foreground: 0 0% 98%;
   --sidebar-border: 0 0% 15%;
-  --sidebar-primary: 220 85% 50%;
-  --sidebar-primary-foreground: 220 85% 98%;
+  --sidebar-primary: 200 12% 55%;
+  --sidebar-primary-foreground: 0 0% 98%;
   --sidebar-accent: 220 8% 16%;
   --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-ring: 220 85% 50%;
+  --sidebar-ring: 200 12% 55%;
   --popover: 0 0% 13%;
   --popover-foreground: 0 0% 98%;
   --popover-border: 0 0% 17%;
-  --primary: 220 85% 45%;
-  --primary-foreground: 220 85% 98%;
+  --primary: 200 12% 55%;
+  --primary-foreground: 0 0% 98%;
   --secondary: 220 6% 18%;
   --secondary-foreground: 0 0% 98%;
   --muted: 220 5% 17%;
@@ -121,7 +121,7 @@
   --destructive: 0 84% 42%;
   --destructive-foreground: 0 84% 98%;
   --input: 0 0% 30%;
-  --ring: 220 85% 50%;
+  --ring: 200 12% 55%;
   --chart-1: 220 70% 60%;
   --chart-2: 200 65% 62%;
   --chart-3: 240 60% 65%;
@@ -168,6 +168,10 @@
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {

@@ -78,11 +78,11 @@ export default function CarCard({ car }: CarCardProps) {
           asChild
           variant="outline"
           size="icon"
-          className="shrink-0 bg-[#25D366]/10 border-[#25D366]/30 hover:bg-[#25D366]/20"
+          className="shrink-0 bg-gradient-to-br from-[#00a884]/10 to-[#25D366]/10 border-[#00a884]/30 hover:bg-gradient-to-br hover:from-[#00a884]/20 hover:to-[#25D366]/20"
           data-testid={`button-whatsapp-${car.id}`}
         >
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            <SiWhatsapp className="w-4 h-4 text-[#25D366]" />
+            <SiWhatsapp className="w-4 h-4 text-[#00a884]" />
           </a>
         </Button>
       </CardFooter>

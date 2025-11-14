@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
+import logoImage from "@assets/image_1763156274600.png";
 
 export default function Header() {
   const [location] = useLocation();
@@ -35,33 +36,47 @@ export default function Header() {
     >
       <div className="container mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Link href="/">
-            <a className="flex items-center gap-3 cursor-pointer" data-testid="link-home">
-              <div className="text-2xl font-bold font-mono tracking-tight">
-                <span className="text-primary">Al Qalam</span>
-                <span className={isScrolled ? "text-foreground" : "text-white"}>
-                  {" "}Motors
-                </span>
-              </div>
-            </a>
-          </Link>
+          <a 
+            href="/" 
+            className="flex items-center gap-2 cursor-pointer" 
+            data-testid="link-home"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = "/";
+            }}
+          >
+            <img 
+              src={logoImage} 
+              alt="Al Qalam Motors" 
+              className="h-12 w-12 object-contain"
+            />
+            <div className="text-xl font-bold tracking-tight">
+              <span className={isScrolled ? "text-foreground" : "text-white"}>
+                Al Qalam Motors
+              </span>
+            </div>
+          </a>
 
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <a
-                  className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
-                    location === link.href
-                      ? "text-primary"
-                      : isScrolled
-                      ? "text-foreground"
-                      : "text-white"
-                  }`}
-                  data-testid={`link-${link.label.toLowerCase()}`}
-                >
-                  {link.label}
-                </a>
-              </Link>
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href = link.href;
+                }}
+                className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                  location === link.href
+                    ? "text-primary"
+                    : isScrolled
+                    ? "text-foreground"
+                    : "text-white"
+                }`}
+                data-testid={`link-${link.label.toLowerCase()}`}
+              >
+                {link.label}
+              </a>
             ))}
           </nav>
 
@@ -69,7 +84,7 @@ export default function Header() {
             <Button
               asChild
               variant="default"
-              className="bg-[#25D366] hover:bg-[#20BD5A] text-white border-0"
+              className="bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 shadow-md"
               data-testid="button-whatsapp-contact"
             >
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
@@ -97,22 +112,26 @@ export default function Header() {
         <div className="md:hidden bg-background border-b">
           <nav className="container mx-auto px-6 py-6 flex flex-col gap-4">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <a
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`text-base font-medium transition-colors hover:text-primary cursor-pointer ${
-                    location === link.href ? "text-primary" : "text-foreground"
-                  }`}
-                  data-testid={`link-mobile-${link.label.toLowerCase()}`}
-                >
-                  {link.label}
-                </a>
-              </Link>
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsMobileMenuOpen(false);
+                  window.location.href = link.href;
+                }}
+                className={`text-base font-medium transition-colors hover:text-primary cursor-pointer ${
+                  location === link.href ? "text-primary" : "text-foreground"
+                }`}
+                data-testid={`link-mobile-${link.label.toLowerCase()}`}
+              >
+                {link.label}
+              </a>
             ))}
             <Button
               asChild
               variant="default"
-              className="bg-[#25D366] hover:bg-[#20BD5A] text-white border-0 w-full"
+              className="bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 w-full shadow-md"
               data-testid="button-mobile-whatsapp"
             >
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">

@@ -29,7 +29,7 @@ export default function WhyChooseUs() {
     <section className="py-16 md:py-24 bg-card">
       <div className="container mx-auto max-w-7xl px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold font-mono mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Why Choose Al Qalam Motors
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

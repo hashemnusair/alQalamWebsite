@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { SiWhatsapp } from "react-icons/si";
-import heroImage from "@assets/generated_images/Hero_showroom_Land_Cruiser_da08f4fa.png";
+import heroImage from "@assets/image_1763156214950.png";
 
 export default function Hero() {
   const whatsappNumber = "+962791234567";
@@ -21,8 +21,8 @@ export default function Hero() {
 
       <div className="relative z-10 container mx-auto max-w-7xl px-6 lg:px-8">
         <div className="max-w-3xl">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 font-mono tracking-tight leading-tight">
-            Premium Vehicles in <span className="text-primary">Amman</span>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
+            Premium Vehicles in <span className="text-gray-300">Amman</span>
           </h1>
           <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl leading-relaxed">
             Discover exceptional quality cars from trusted brands. Your journey to finding the perfect vehicle starts here at Al Qalam Motors.
@@ -42,8 +42,7 @@ export default function Hero() {
             <Button
               asChild
               size="lg"
-              variant="outline"
-              className="text-base font-semibold bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
+              className="text-base font-semibold bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 shadow-lg"
               data-testid="button-hero-whatsapp"
             >
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">

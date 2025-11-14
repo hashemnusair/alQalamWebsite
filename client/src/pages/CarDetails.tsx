@@ -101,7 +101,7 @@ export default function CarDetails() {
             <div className="lg:sticky lg:top-24 lg:h-fit">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-bold font-mono mb-2" data-testid="text-car-title">
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2" data-testid="text-car-title">
                     {car.title}
                   </h1>
                   <p className="text-lg text-muted-foreground">{car.year}</p>
@@ -156,7 +156,7 @@ export default function CarDetails() {
               <Button
                 asChild
                 size="lg"
-                className="w-full bg-[#25D366] hover:bg-[#20BD5A] text-white border-0 text-base font-semibold"
+                className="w-full bg-gradient-to-r from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] text-white border-0 text-base font-semibold shadow-md"
                 data-testid="button-whatsapp-inquiry"
               >
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">

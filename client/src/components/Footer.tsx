@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { SiWhatsapp, SiFacebook, SiInstagram } from "react-icons/si";
 import { Mail, Phone, MapPin } from "lucide-react";
+import logoImage from "@assets/image_1763156274600.png";
 
 export default function Footer() {
   const whatsappNumber = "+962791234567";
@@ -10,8 +11,13 @@ export default function Footer() {
       <div className="container mx-auto max-w-7xl px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
-            <div className="text-2xl font-bold font-mono mb-4">
-              <span className="text-primary">Al Qalam</span> Motors
+            <div className="flex items-center gap-2 mb-4">
+              <img 
+                src={logoImage} 
+                alt="Al Qalam Motors" 
+                className="h-12 w-12 object-contain"
+              />
+              <div className="text-xl font-bold">Al Qalam Motors</div>
             </div>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               Your trusted destination for premium vehicles in Amman, Jordan. Quality cars, exceptional service, competitive prices.
@@ -21,7 +27,7 @@ export default function Footer() {
                 href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-md bg-[#25D366] hover:bg-[#20BD5A] flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-md bg-gradient-to-br from-[#00a884] to-[#25D366] hover:from-[#008c6f] hover:to-[#20BD5A] flex items-center justify-center transition-all shadow-md"
                 data-testid="link-footer-whatsapp"
               >
                 <SiWhatsapp className="w-4 h-4 text-white" />
@@ -50,21 +56,42 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <nav className="flex flex-col gap-3">
-              <Link href="/">
-                <a className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-footer-home">
-                  Home
-                </a>
-              </Link>
-              <Link href="/inventory">
-                <a className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-footer-inventory">
-                  Inventory
-                </a>
-              </Link>
-              <Link href="/about">
-                <a className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-footer-about">
-                  About & Contact
-                </a>
-              </Link>
+              <a 
+                href="/"
+                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" 
+                data-testid="link-footer-home"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.location.href = "/";
+                }}
+              >
+                Home
+              </a>
+              <a 
+                href="/inventory"
+                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" 
+                data-testid="link-footer-inventory"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.location.href = "/inventory";
+                }}
+              >
+                Inventory
+              </a>
+              <a 
+                href="/about"
+                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" 
+                data-testid="link-footer-about"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.location.href = "/about";
+                }}
+              >
+                About & Contact
+              </a>
             </nav>
           </div>
 

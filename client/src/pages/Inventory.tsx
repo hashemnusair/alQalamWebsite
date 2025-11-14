@@ -33,7 +33,7 @@ export default function Inventory() {
       <main className="pt-24 pb-16 flex-1">
         <div className="container mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold font-mono mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Our <span className="text-primary">Inventory</span>
             </h1>
             <p className="text-lg text-muted-foreground">
