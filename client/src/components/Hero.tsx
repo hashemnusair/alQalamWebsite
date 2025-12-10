@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
 import { SiWhatsapp } from "react-icons/si";
 import heroImage from "@assets/image_1763156214950.png";
+import { Trans, useTranslation } from "react-i18next";
 
 export default function Hero() {
   const whatsappNumber = "+962791234567";
-  const whatsappMessage = "Hello! I'm interested in learning more about your vehicles.";
+  const { t } = useTranslation();
+  const whatsappMessage = t("whatsapp.generalInquiry");
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
@@ -22,10 +23,15 @@ export default function Hero() {
       <div className="relative z-10 container mx-auto max-w-7xl px-6 lg:px-8">
         <div className="max-w-3xl">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
-            Premium Vehicles in <span className="text-gray-300">Amman</span>
+            <Trans
+              i18nKey="home.hero.title"
+              components={{
+                highlight: <span className="text-gray-300" />,
+              }}
+            />
           </h1>
           <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl leading-relaxed">
-            Discover exceptional quality cars from trusted brands. Your journey to finding the perfect vehicle starts here at Al Qalam Motors.
+            {t("home.hero.description")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
@@ -35,14 +41,14 @@ export default function Hero() {
               className="text-base font-semibold"
               data-testid="button-browse-inventory"
             >
-              <a 
+              <a
                 href="/inventory"
                 onClick={(e) => {
                   e.preventDefault();
                   window.location.href = "/inventory";
                 }}
               >
-                Browse Inventory
+                {t("actions.browseInventory")}
               </a>
             </Button>
             <Button
@@ -53,8 +59,8 @@ export default function Hero() {
               data-testid="button-hero-whatsapp"
             >
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                <SiWhatsapp className="w-5 h-5 mr-2" />
-                WhatsApp Us
+                <SiWhatsapp className="w-5 h-5" />
+                {t("actions.whatsappUs")}
               </a>
             </Button>
           </div>

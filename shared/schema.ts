@@ -23,7 +23,7 @@ export const cars = pgTable("cars", {
   fuel: text("fuel").notNull(),
   color: text("color").notNull(),
   origin: text("origin").notNull(),
-  images: text("images").array().notNull(),
+  images: text("images").array(),
   description: text("description").notNull(),
 });
 
@@ -32,7 +32,15 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
-export const insertCarSchema = createInsertSchema(cars).omit({
+const carImagesSchema = z
+  .array(z.string().min(1, "Image URL is required"))
+  .min(1, "At least one image is required")
+  .optional()
+  .nullable();
+
+export const insertCarSchema = createInsertSchema(cars, {
+  images: carImagesSchema,
+}).omit({
   id: true,
 });
 

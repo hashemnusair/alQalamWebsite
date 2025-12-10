@@ -1,13 +1,8 @@
 import { useState } from "react";
-import CarFilters, { FilterValues } from "../CarFilters";
+import CarFilters, { FilterValues, createDefaultFilterValues } from "../CarFilters";
 
 export default function CarFiltersExample() {
-  const [filters, setFilters] = useState<FilterValues>({
-    make: "All",
-    minPrice: "all",
-    maxPrice: "999999",
-    year: "All",
-  });
+  const [filters, setFilters] = useState<FilterValues>(() => createDefaultFilterValues());
 
   return (
     <div className="p-8">

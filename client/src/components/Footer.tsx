@@ -1,132 +1,155 @@
-import { Link } from "wouter";
 import { SiWhatsapp, SiFacebook, SiInstagram } from "react-icons/si";
 import { Mail, Phone, MapPin } from "lucide-react";
 import logoImage from "@assets/image_1763156274600.png";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
   const whatsappNumber = "+962791234567";
+  const { t } = useTranslation();
+  const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-card border-t mt-auto">
+    <footer className="relative mt-auto border-t border-white/10 bg-gradient-to-b from-[#070709] via-[#0a0b10] to-black text-white/80">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-40"
+        aria-hidden="true"
+      />
       <div className="container mx-auto max-w-7xl px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <img 
-                src={logoImage} 
-                alt="Al Qalam Motors" 
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <img
+                src={logoImage}
+                alt={t("brand.name")}
                 className="h-12 w-12 object-contain"
               />
-              <div className="text-xl font-bold">Al Qalam Motors</div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-white/40">{t("brand.since")}</p>
+                <p className="text-xl font-semibold text-white">{t("brand.name")}</p>
+              </div>
             </div>
-            <p className="text-muted-foreground mb-6 leading-relaxed">
-              Your trusted destination for premium vehicles in Amman, Jordan. Quality cars, exceptional service, competitive prices.
+            <p className="max-w-sm text-sm leading-relaxed text-white/70">
+              {t("footer.description")}
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <a
                 href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-primary/40 bg-primary/25 text-white transition-all hover:-translate-y-0.5 hover:bg-primary/35"
                 data-testid="link-footer-whatsapp"
               >
-                <SiWhatsapp className="w-4 h-4 text-primary-foreground" />
+                <SiWhatsapp className="h-4 w-4" />
               </a>
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all hover:-translate-y-0.5 hover:bg-white/10"
                 data-testid="link-footer-facebook"
               >
-                <SiFacebook className="w-4 h-4 text-white" />
+                <SiFacebook className="h-4 w-4" />
               </a>
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all hover:-translate-y-0.5 hover:bg-white/10"
                 data-testid="link-footer-instagram"
               >
-                <SiInstagram className="w-4 h-4 text-white" />
+                <SiInstagram className="h-4 w-4" />
               </a>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <nav className="flex flex-col gap-3">
-              <a 
+          <div className="space-y-5">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-white/40">{t("footer.navigateEyebrow")}</p>
+              <h3 className="text-lg font-semibold text-white">{t("footer.quickLinksTitle")}</h3>
+            </div>
+            <nav className="flex flex-col gap-4 text-sm" dir="auto">
+              <a
                 href="/"
-                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" 
+                className="flex items-center gap-3 text-white/70 transition-all hover:translate-x-1 hover:text-white cursor-pointer"
                 data-testid="link-footer-home"
                 onClick={(e) => {
                   e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: "smooth" });
                   window.location.href = "/";
                 }}
               >
-                Home
+                <span className="h-px w-6 bg-white/20" aria-hidden="true" />
+                {t("nav.home")}
               </a>
-              <a 
+              <a
                 href="/inventory"
-                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" 
+                className="flex items-center gap-3 text-white/70 transition-all hover:translate-x-1 hover:text-white cursor-pointer"
                 data-testid="link-footer-inventory"
                 onClick={(e) => {
                   e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: "smooth" });
                   window.location.href = "/inventory";
                 }}
               >
-                Inventory
+                <span className="h-px w-6 bg-white/20" aria-hidden="true" />
+                {t("nav.inventory")}
               </a>
-              <a 
+              <a
                 href="/about"
-                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer" 
+                className="flex items-center gap-3 text-white/70 transition-all hover:translate-x-1 hover:text-white cursor-pointer"
                 data-testid="link-footer-about"
                 onClick={(e) => {
                   e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: "smooth" });
                   window.location.href = "/about";
                 }}
               >
-                About & Contact
+                <span className="h-px w-6 bg-white/20" aria-hidden="true" />
+                {t("footer.aboutLink")}
               </a>
             </nav>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <div className="flex flex-col gap-3 text-muted-foreground">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 shrink-0" />
-                <span className="text-sm">Mecca Street, Amman, Jordan</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 shrink-0" />
-                <a href="tel:+962791234567" className="text-sm hover:text-primary transition-colors">
-                  +962 79 123 4567
-                </a>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 shrink-0" />
-                <a
-                  href="mailto:info@alqalammotors.jo"
-                  className="text-sm hover:text-primary transition-colors"
-                >
-                  info@alqalammotors.jo
-                </a>
-              </div>
+          <div className="space-y-5">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-white/40">{t("footer.contactEyebrow")}</p>
+              <h3 className="text-lg font-semibold text-white">{t("footer.contactTitle")}</h3>
             </div>
-            <div className="mt-4 text-sm text-muted-foreground">
-              <p>Sunday - Thursday: 9:00 AM - 8:00 PM</p>
-              <p>Friday - Saturday: 10:00 AM - 6:00 PM</p>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-white/70 shadow-[0_25px_50px_rgba(0,0,0,0.25)]">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                  <span>{t("footer.address")}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 shrink-0 text-primary" />
+                  <a href="tel:+962791234567" className="transition-colors hover:text-white">
+                    +962 79 123 4567
+                  </a>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 shrink-0 text-primary" />
+                  <a href="mailto:info@alqalammotors.jo" className="transition-colors hover:text-white">
+                    info@alqalammotors.jo
+                  </a>
+                </div>
+              </div>
+              <div className="mt-6 border-t border-white/10 pt-4 text-xs uppercase tracking-[0.35em] text-white/40">
+                {t("footer.hoursTitle")}
+              </div>
+              <div className="space-y-1 text-white/70">
+                <p>{t("footer.weekdayHours")}</p>
+                <p>{t("footer.weekendHours")}</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t mt-12 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Al Qalam Motors. All rights reserved.</p>
+        <div className="mt-12 border-t border-white/10 pt-8 text-sm text-white/55 md:flex md:items-center md:justify-between">
+          <p>{t("footer.copy", { year: currentYear, brand: t("brand.name") })}</p>
+          <p className="mt-3 text-xs uppercase tracking-[0.4em] text-white/40 md:mt-0">
+            {t("brand.tagline")}
+          </p>
         </div>
       </div>
     </footer>

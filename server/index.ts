@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { ZodError } from "zod";
 
 const app = express();
 
@@ -50,11 +51,17 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const status = err.status || err.statusCode || (err instanceof ZodError ? 400 : 500);
+    const payload: Record<string, unknown> = { message: err.message || "Internal Server Error" };
 
-    res.status(status).json({ message });
-    throw err;
+    if (err instanceof ZodError) {
+      payload.details = err.flatten();
+    }
+
+    res.status(status).json(payload);
+    if (status >= 500) {
+      log(`Error: ${err.stack || err.message}`);
+    }
   });
 
   // importantly only setup vite in development and after
@@ -73,8 +80,7 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({
     port,
-    host: "0.0.0.0",
-    reusePort: true,
+    host: "127.0.0.1",
   }, () => {
     log(`serving on port ${port}`);
   });
