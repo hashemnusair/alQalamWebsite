@@ -6,7 +6,7 @@ import {
   type InsertCar,
   users,
   cars,
-} from "@shared/schema";
+} from "../shared/schema";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
