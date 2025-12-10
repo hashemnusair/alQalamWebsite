@@ -57,10 +57,17 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not set. Configure it to connect to Supabase Postgres.");
 }
 
+// Supabase requires SSL. Allow override via PGSSLMODE=disable if needed.
+const useSsl = (process.env.PGSSLMODE ?? "").toLowerCase() !== "disable";
+const ssl =
+  useSsl
+    ? { rejectUnauthorized: process.env.PG_SSL_REJECT_UNAUTHORIZED !== "false" }
+    : false;
+
 export const pool = new Pool({
   connectionString,
   max: parseInt(process.env.PG_POOL_SIZE ?? "10", 10),
-  // Let the connection string decide SSL configuration. Supabase URLs usually already include sslmode.
+  ssl,
 });
 
 export const db = drizzle(pool, { schema });
