@@ -97,7 +97,7 @@ export default function CarDetails() {
   const originLabel = t(`vehicle.origin.${toTranslationKey(car.origin)}`, {
     defaultValue: car.origin,
   });
-  const formattedYear = formatNumber(car.year, i18n.language, { maximumFractionDigits: 0 });
+  const formattedYear = formatNumber(car.year, i18n.language, { useGrouping: false });
 
   const formattedMileage = formatNumber(car.mileage, i18n.language);
   const specs = [

@@ -24,7 +24,7 @@ export default function CarCard({ car }: CarCardProps) {
     maximumFractionDigits: 0,
   });
   const mileage = formatNumber(car.mileage, i18n.language);
-  const year = formatNumber(car.year, i18n.language, { maximumFractionDigits: 0 });
+  const year = formatNumber(car.year, i18n.language, { useGrouping: false });
   const currencyLabel = t(`vehicle.currency.${toTranslationKey(car.currency)}`, {
     defaultValue: car.currency,
   });
