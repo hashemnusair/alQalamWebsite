@@ -59,10 +59,12 @@ if (!connectionString) {
 
 // Supabase requires SSL. Allow override via PGSSLMODE=disable if needed.
 const useSsl = (process.env.PGSSLMODE ?? "").toLowerCase() !== "disable";
-const ssl =
-  useSsl
-    ? { rejectUnauthorized: process.env.PG_SSL_REJECT_UNAUTHORIZED !== "false" }
-    : false;
+const isSupabasePooler = /(^|@)[^/]*\.pooler\.supabase\.com(?::\d+)?\//.test(connectionString);
+const rejectUnauthorized =
+  process.env.PG_SSL_REJECT_UNAUTHORIZED !== undefined
+    ? process.env.PG_SSL_REJECT_UNAUTHORIZED !== "false"
+    : !isSupabasePooler;
+const ssl = useSsl ? { rejectUnauthorized } : false;
 
 export const pool = new Pool({
   connectionString,
