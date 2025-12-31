@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db } from "./db.js";
 import {
   type User,
   type InsertUser,
@@ -6,7 +6,7 @@ import {
   type InsertCar,
   users,
   cars,
-} from "../shared/schema";
+} from "../shared/schema.js";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
