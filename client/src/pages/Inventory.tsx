@@ -1,20 +1,83 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CarCard from "@/components/CarCard";
-import CarFilters, { FilterValues, createDefaultFilterValues } from "@/components/CarFilters";
+import CarFilters, {
+  DEFAULT_FILTER_BOUNDS,
+  FilterBounds,
+  FilterValues,
+  createDefaultFilterValues,
+} from "@/components/CarFilters";
 import { getCarSearchText } from "@/data/car-translations";
 import { formatNumber } from "@/lib/locale";
 import { useCars } from "@/hooks/useCars";
 
+function roundDown(value: number, step: number) {
+  return Math.floor(value / step) * step;
+}
+
+function roundUp(value: number, step: number) {
+  return Math.ceil(value / step) * step;
+}
+
 export default function Inventory() {
   const [filters, setFilters] = useState<FilterValues>(() => createDefaultFilterValues());
+  const [hasUserChangedFilters, setHasUserChangedFilters] = useState(false);
   const { t, i18n } = useTranslation();
 
   const { data: cars, isLoading, error } = useCars();
   const hasError = Boolean(error);
   const inventory = cars ?? [];
+
+  const bounds: FilterBounds = useMemo(() => {
+    if (inventory.length === 0) return DEFAULT_FILTER_BOUNDS;
+
+    const prices = inventory
+      .map((car) => parseFloat(car.price))
+      .filter((value) => Number.isFinite(value)) as number[];
+    const years = inventory.map((car) => car.year).filter((value) => Number.isFinite(value)) as number[];
+    const mileages = inventory.map((car) => car.mileage).filter((value) => Number.isFinite(value)) as number[];
+
+    const rawMinPrice = prices.length ? Math.min(...prices) : DEFAULT_FILTER_BOUNDS.price.min;
+    const rawMaxPrice = prices.length ? Math.max(...prices) : DEFAULT_FILTER_BOUNDS.price.max;
+
+    const minPrice = Math.max(0, roundDown(rawMinPrice, 1000));
+    const maxPrice = Math.max(minPrice, roundUp(rawMaxPrice, 1000));
+
+    const rawMinYear = years.length ? Math.min(...years) : DEFAULT_FILTER_BOUNDS.year.min;
+    const rawMaxYear = years.length ? Math.max(...years) : DEFAULT_FILTER_BOUNDS.year.max;
+
+    const minYear = Math.min(rawMinYear, rawMaxYear);
+    const maxYear = Math.max(rawMinYear, rawMaxYear);
+
+    const rawMaxMileage = mileages.length ? Math.max(...mileages) : DEFAULT_FILTER_BOUNDS.mileage.max;
+    const maxMileage = Math.max(DEFAULT_FILTER_BOUNDS.mileage.min, roundUp(rawMaxMileage, 1000));
+
+    return {
+      price: { min: minPrice, max: maxPrice },
+      year: { min: minYear, max: maxYear },
+      mileage: { min: DEFAULT_FILTER_BOUNDS.mileage.min, max: maxMileage },
+    };
+  }, [inventory]);
+
+  const makeOptions = useMemo(() => {
+    const makes = inventory.map((car) => car.make).filter(Boolean);
+    return Array.from(new Set(makes)).sort((a, b) => a.localeCompare(b));
+  }, [inventory]);
+
+  useEffect(() => {
+    // Initialize the default filter ranges from the actual dataset once it's loaded.
+    // This prevents hidden cars due to static bounds (e.g., future model years, high prices).
+    if (hasUserChangedFilters) return;
+    if (inventory.length === 0) return;
+    setFilters(createDefaultFilterValues(bounds));
+  }, [bounds, hasUserChangedFilters, inventory.length]);
+
+  const handleFilterChange = (next: FilterValues) => {
+    setHasUserChangedFilters(true);
+    setFilters(next);
+  };
 
   const filteredCars = useMemo(() => {
     return inventory.filter((car) => {
@@ -77,8 +140,10 @@ export default function Inventory() {
           <div className="mb-8">
             <CarFilters
               filters={filters}
-              onFilterChange={setFilters}
+              onFilterChange={handleFilterChange}
               resultCount={filteredCars.length}
+              bounds={bounds}
+              makeOptions={makeOptions}
             />
           </div>
 

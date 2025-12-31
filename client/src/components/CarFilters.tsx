@@ -12,49 +12,48 @@ import { cn } from "@/lib/utils";
 import { Banknote, Calendar, ChevronDown, Gauge, RotateCcw, Search, Sparkles, X } from "lucide-react";
 import { SiAudi, SiBmw, SiLandrover, SiMercedes, SiPorsche, SiToyota } from "react-icons/si";
 
-const CURRENT_YEAR = new Date().getFullYear();
-const PRICE_BOUNDS = { min: 5000, max: 250000 };
-const YEAR_BOUNDS = { min: CURRENT_YEAR - 12, max: CURRENT_YEAR };
-const MILEAGE_BOUNDS = { min: 0, max: 250000 };
+export type FilterBounds = {
+  price: { min: number; max: number };
+  year: { min: number; max: number };
+  mileage: { min: number; max: number };
+};
 
-const MAKE_OPTIONS = [
+const CURRENT_YEAR = new Date().getFullYear();
+export const DEFAULT_FILTER_BOUNDS: FilterBounds = {
+  // Keep these conservative; Inventory page can pass dynamic bounds computed from the dataset.
+  price: { min: 0, max: 250000 },
+  year: { min: CURRENT_YEAR - 20, max: CURRENT_YEAR + 1 },
+  mileage: { min: 0, max: 250000 },
+};
+
+const DEFAULT_MAKE_OPTIONS = [
   "Audi",
   "BMW",
+  "BYD",
+  "Cadillac",
+  "Changan",
   "Chevrolet",
+  "Ferrari",
   "Ford",
+  "Jaguar",
+  "Jeep",
+  "Kia",
   "Land Rover",
   "Lexus",
   "Mazda",
+  "Maserati",
   "Mercedes-Benz",
   "Nissan",
   "Porsche",
+  "Range Rover",
+  "Tesla",
   "Toyota",
-];
-
-const PRICE_PRESETS = [
-  { labelKey: "carFilters.pricePresets.under65k", range: [PRICE_BOUNDS.min, 65000] as [number, number] },
-  { labelKey: "carFilters.pricePresets.between65And100", range: [65000, 100000] as [number, number] },
-  { labelKey: "carFilters.pricePresets.between100And200", range: [100000, 200000] as [number, number] },
-  { labelKey: "carFilters.pricePresets.above200", range: [200000, PRICE_BOUNDS.max] as [number, number] },
-];
-
-const YEAR_PRESETS = [
-  { labelKey: "carFilters.yearPresets.recent", range: [Math.max(YEAR_BOUNDS.max - 2, YEAR_BOUNDS.min), YEAR_BOUNDS.max] as [number, number] },
-  { labelKey: "carFilters.yearPresets.since2018", range: [Math.max(2018, YEAR_BOUNDS.min), YEAR_BOUNDS.max] as [number, number] },
-  { labelKey: "carFilters.yearPresets.from2014To2019", range: [Math.max(2014, YEAR_BOUNDS.min), Math.min(2019, YEAR_BOUNDS.max)] as [number, number] },
-];
-
-const MILEAGE_PRESETS = [
-  { labelKey: "carFilters.mileagePresets.under25k", range: [MILEAGE_BOUNDS.min, 25000] as [number, number] },
-  { labelKey: "carFilters.mileagePresets.between25And60", range: [25000, 60000] as [number, number] },
-  { labelKey: "carFilters.mileagePresets.between60And120", range: [60000, 120000] as [number, number] },
-  { labelKey: "carFilters.mileagePresets.above120", range: [120000, MILEAGE_BOUNDS.max] as [number, number] },
 ];
 
 const FUEL_OPTIONS = [
   {
     id: "petrol",
-    values: ["Petrol"],
+    values: ["Petrol", "Mild hybrid petrol"],
     labelKey: "carFilters.fuelOptions.petrol.label",
     descriptionKey: "carFilters.fuelOptions.petrol.description",
   },
@@ -66,7 +65,7 @@ const FUEL_OPTIONS = [
   },
   {
     id: "electricHybrid",
-    values: ["Electric", "Hybrid"],
+    values: ["Electric", "Hybrid", "Plug-in hybrid"],
     labelKey: "carFilters.fuelOptions.electricHybrid.label",
     descriptionKey: "carFilters.fuelOptions.electricHybrid.description",
   },
@@ -91,12 +90,12 @@ export interface FilterValues {
   search: string;
 }
 
-export const createDefaultFilterValues = (): FilterValues => ({
+export const createDefaultFilterValues = (bounds: FilterBounds = DEFAULT_FILTER_BOUNDS): FilterValues => ({
   makes: [],
-  minPrice: PRICE_BOUNDS.min,
-  maxPrice: PRICE_BOUNDS.max,
-  yearRange: [YEAR_BOUNDS.min, YEAR_BOUNDS.max],
-  mileageRange: [MILEAGE_BOUNDS.min, MILEAGE_BOUNDS.max],
+  minPrice: bounds.price.min,
+  maxPrice: bounds.price.max,
+  yearRange: [bounds.year.min, bounds.year.max],
+  mileageRange: [bounds.mileage.min, bounds.mileage.max],
   fuelTypes: [],
   search: "",
 });
@@ -105,14 +104,23 @@ interface CarFiltersProps {
   filters: FilterValues;
   onFilterChange: (filters: FilterValues) => void;
   resultCount: number;
+  bounds?: FilterBounds;
+  makeOptions?: string[];
 }
 
-export default function CarFilters({ filters, onFilterChange, resultCount }: CarFiltersProps) {
+export default function CarFilters({ filters, onFilterChange, resultCount, bounds, makeOptions }: CarFiltersProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const makeSearchRef = useRef<HTMLInputElement>(null);
   const [makeQuery, setMakeQuery] = useState("");
   const [isMakeDropdownOpen, setIsMakeDropdownOpen] = useState(false);
+  const resolvedBounds = bounds ?? DEFAULT_FILTER_BOUNDS;
+
+  const resolvedMakeOptions = useMemo(() => {
+    const options = (makeOptions && makeOptions.length > 0 ? makeOptions : DEFAULT_MAKE_OPTIONS).filter(Boolean);
+    // Keep deterministic order for UX
+    return Array.from(new Set(options)).sort((a, b) => a.localeCompare(b));
+  }, [makeOptions]);
 
   const locale = i18n.language === "ar" ? "ar-JO" : "en-US";
   const currencyFormatter = useMemo(
@@ -136,9 +144,47 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
 
   const filteredMakes = useMemo(() => {
     const query = makeQuery.trim().toLowerCase();
-    if (!query) return MAKE_OPTIONS;
-    return MAKE_OPTIONS.filter((make) => make.toLowerCase().includes(query));
-  }, [makeQuery]);
+    if (!query) return resolvedMakeOptions;
+    return resolvedMakeOptions.filter((make) => make.toLowerCase().includes(query));
+  }, [makeQuery, resolvedMakeOptions]);
+
+  const pricePresets = useMemo(() => {
+    const min = resolvedBounds.price.min;
+    const max = resolvedBounds.price.max;
+    const clamp = (value: number) => Math.min(Math.max(value, min), max);
+
+    return [
+      { labelKey: "carFilters.pricePresets.under65k", range: [min, clamp(65000)] as [number, number] },
+      { labelKey: "carFilters.pricePresets.between65And100", range: [clamp(65000), clamp(100000)] as [number, number] },
+      { labelKey: "carFilters.pricePresets.between100And200", range: [clamp(100000), clamp(200000)] as [number, number] },
+      { labelKey: "carFilters.pricePresets.above200", range: [clamp(200000), max] as [number, number] },
+    ].filter((preset) => preset.range[0] <= preset.range[1]);
+  }, [resolvedBounds.price.min, resolvedBounds.price.max]);
+
+  const yearPresets = useMemo(() => {
+    const min = resolvedBounds.year.min;
+    const max = resolvedBounds.year.max;
+    const clamp = (value: number) => Math.min(Math.max(value, min), max);
+
+    return [
+      { labelKey: "carFilters.yearPresets.recent", range: [clamp(max - 2), max] as [number, number] },
+      { labelKey: "carFilters.yearPresets.since2018", range: [clamp(2018), max] as [number, number] },
+      { labelKey: "carFilters.yearPresets.from2014To2019", range: [clamp(2014), clamp(2019)] as [number, number] },
+    ].filter((preset) => preset.range[0] <= preset.range[1]);
+  }, [resolvedBounds.year.min, resolvedBounds.year.max]);
+
+  const mileagePresets = useMemo(() => {
+    const min = resolvedBounds.mileage.min;
+    const max = resolvedBounds.mileage.max;
+    const clamp = (value: number) => Math.min(Math.max(value, min), max);
+
+    return [
+      { labelKey: "carFilters.mileagePresets.under25k", range: [min, clamp(25000)] as [number, number] },
+      { labelKey: "carFilters.mileagePresets.between25And60", range: [clamp(25000), clamp(60000)] as [number, number] },
+      { labelKey: "carFilters.mileagePresets.between60And120", range: [clamp(60000), clamp(120000)] as [number, number] },
+      { labelKey: "carFilters.mileagePresets.above120", range: [clamp(120000), max] as [number, number] },
+    ].filter((preset) => preset.range[0] <= preset.range[1]);
+  }, [resolvedBounds.mileage.min, resolvedBounds.mileage.max]);
 
   const toggleMake = (make: string) => {
     const isSelected = filters.makes.includes(make);
@@ -170,22 +216,22 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
   };
 
   const clearFilters = () => {
-    onFilterChange(createDefaultFilterValues());
+    onFilterChange(createDefaultFilterValues(resolvedBounds));
     setMakeQuery("");
   };
 
   const priceSummary =
-    filters.minPrice === PRICE_BOUNDS.min && filters.maxPrice === PRICE_BOUNDS.max
+    filters.minPrice === resolvedBounds.price.min && filters.maxPrice === resolvedBounds.price.max
       ? t("carFilters.summary.anyBudget")
       : `${currencyFormatter.format(filters.minPrice)} - ${currencyFormatter.format(filters.maxPrice)}`;
 
   const yearSummary =
-    filters.yearRange[0] === YEAR_BOUNDS.min && filters.yearRange[1] === YEAR_BOUNDS.max
+    filters.yearRange[0] === resolvedBounds.year.min && filters.yearRange[1] === resolvedBounds.year.max
       ? t("carFilters.summary.allYears")
       : `${filters.yearRange[0]} - ${filters.yearRange[1]}`;
 
   const mileageSummary =
-    filters.mileageRange[0] === MILEAGE_BOUNDS.min && filters.mileageRange[1] === MILEAGE_BOUNDS.max
+    filters.mileageRange[0] === resolvedBounds.mileage.min && filters.mileageRange[1] === resolvedBounds.mileage.max
       ? t("carFilters.summary.anyMileage")
       : `${numberFormatter.format(filters.mileageRange[0])} - ${numberFormatter.format(filters.mileageRange[1])} km`;
 
@@ -198,12 +244,12 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
 
   const hasActiveFilters =
     filters.makes.length > 0 ||
-    filters.minPrice !== PRICE_BOUNDS.min ||
-    filters.maxPrice !== PRICE_BOUNDS.max ||
-    filters.yearRange[0] !== YEAR_BOUNDS.min ||
-    filters.yearRange[1] !== YEAR_BOUNDS.max ||
-    filters.mileageRange[0] !== MILEAGE_BOUNDS.min ||
-    filters.mileageRange[1] !== MILEAGE_BOUNDS.max ||
+    filters.minPrice !== resolvedBounds.price.min ||
+    filters.maxPrice !== resolvedBounds.price.max ||
+    filters.yearRange[0] !== resolvedBounds.year.min ||
+    filters.yearRange[1] !== resolvedBounds.year.max ||
+    filters.mileageRange[0] !== resolvedBounds.mileage.min ||
+    filters.mileageRange[1] !== resolvedBounds.mileage.max ||
     filters.fuelTypes.length > 0 ||
     filters.search.trim().length > 0;
 
@@ -233,33 +279,33 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
     });
   });
 
-  if (filters.minPrice !== PRICE_BOUNDS.min || filters.maxPrice !== PRICE_BOUNDS.max) {
+  if (filters.minPrice !== resolvedBounds.price.min || filters.maxPrice !== resolvedBounds.price.max) {
     activeFilterChips.push({
       key: "price",
       label: t("carFilters.active.price", {
         min: numberFormatter.format(filters.minPrice),
         max: numberFormatter.format(filters.maxPrice),
       }),
-      onClear: () => onFilterChange({ ...filters, minPrice: PRICE_BOUNDS.min, maxPrice: PRICE_BOUNDS.max }),
+      onClear: () => onFilterChange({ ...filters, minPrice: resolvedBounds.price.min, maxPrice: resolvedBounds.price.max }),
     });
   }
 
-  if (filters.yearRange[0] !== YEAR_BOUNDS.min || filters.yearRange[1] !== YEAR_BOUNDS.max) {
+  if (filters.yearRange[0] !== resolvedBounds.year.min || filters.yearRange[1] !== resolvedBounds.year.max) {
     activeFilterChips.push({
       key: "year",
       label: t("carFilters.active.years", { start: filters.yearRange[0], end: filters.yearRange[1] }),
-      onClear: () => onFilterChange({ ...filters, yearRange: [YEAR_BOUNDS.min, YEAR_BOUNDS.max] }),
+      onClear: () => onFilterChange({ ...filters, yearRange: [resolvedBounds.year.min, resolvedBounds.year.max] }),
     });
   }
 
-  if (filters.mileageRange[0] !== MILEAGE_BOUNDS.min || filters.mileageRange[1] !== MILEAGE_BOUNDS.max) {
+  if (filters.mileageRange[0] !== resolvedBounds.mileage.min || filters.mileageRange[1] !== resolvedBounds.mileage.max) {
     activeFilterChips.push({
       key: "mileage",
       label: t("carFilters.active.mileage", {
         min: numberFormatter.format(filters.mileageRange[0]),
         max: numberFormatter.format(filters.mileageRange[1]),
       }),
-      onClear: () => onFilterChange({ ...filters, mileageRange: [MILEAGE_BOUNDS.min, MILEAGE_BOUNDS.max] }),
+      onClear: () => onFilterChange({ ...filters, mileageRange: [resolvedBounds.mileage.min, resolvedBounds.mileage.max] }),
     });
   }
 
@@ -414,7 +460,7 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
           >
             <div className="space-y-5">
               <div className="flex flex-wrap gap-2">
-                {PRICE_PRESETS.map((preset) => {
+                {pricePresets.map((preset) => {
                   const isActive = filters.minPrice === preset.range[0] && filters.maxPrice === preset.range[1];
                   return (
                     <button
@@ -446,8 +492,8 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
               <div className="px-1">
                 <Slider
                   value={[filters.minPrice, filters.maxPrice]}
-                  min={PRICE_BOUNDS.min}
-                  max={PRICE_BOUNDS.max}
+                  min={resolvedBounds.price.min}
+                  max={resolvedBounds.price.max}
                   step={1000}
                   onValueChange={handlePriceSlider}
                   className="py-2"
@@ -464,7 +510,7 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
           >
             <div className="space-y-5">
               <div className="flex flex-wrap gap-2">
-                {YEAR_PRESETS.map((preset) => {
+                {yearPresets.map((preset) => {
                   const isActive = filters.yearRange[0] === preset.range[0] && filters.yearRange[1] === preset.range[1];
                   return (
                     <button
@@ -496,8 +542,8 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
               <div className="px-1">
                 <Slider
                   value={[filters.yearRange[0], filters.yearRange[1]]}
-                  min={YEAR_BOUNDS.min}
-                  max={YEAR_BOUNDS.max}
+                  min={resolvedBounds.year.min}
+                  max={resolvedBounds.year.max}
                   step={1}
                   onValueChange={handleYearSlider}
                   className="py-2"
@@ -514,7 +560,7 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
           >
             <div className="space-y-5">
               <div className="flex flex-wrap gap-2">
-                {MILEAGE_PRESETS.map((preset) => {
+                {mileagePresets.map((preset) => {
                   const isActive =
                     filters.mileageRange[0] === preset.range[0] && filters.mileageRange[1] === preset.range[1];
                   return (
@@ -547,8 +593,8 @@ export default function CarFilters({ filters, onFilterChange, resultCount }: Car
               <div className="px-1">
                 <Slider
                   value={[filters.mileageRange[0], filters.mileageRange[1]]}
-                  min={MILEAGE_BOUNDS.min}
-                  max={MILEAGE_BOUNDS.max}
+                  min={resolvedBounds.mileage.min}
+                  max={resolvedBounds.mileage.max}
                   step={1000}
                   onValueChange={handleMileageSlider}
                   className="py-2"
