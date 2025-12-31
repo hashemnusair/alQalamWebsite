@@ -1,5 +1,5 @@
 import express from "express";
-import { registerRoutes } from "../server/routes";
+import { registerRoutes } from "../server/routes.js";
 import { ZodError } from "zod";
 
 // This handler is used by Vercel Serverless Functions under /api.
