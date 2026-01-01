@@ -58,7 +58,7 @@ export default function Header() {
       }`}
     >
       <div className="container mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="relative flex items-center h-20 pr-32 md:pr-40" dir={direction}>
+        <div className="relative flex items-center h-20 md:pr-40" dir={direction}>
           <a 
             href="/" 
             className="flex items-center gap-2 cursor-pointer flex-shrink-0" 
@@ -132,7 +132,7 @@ export default function Header() {
           </div>
 
           <button
-            className="md:hidden p-2 ml-auto"
+            className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             data-testid="button-mobile-menu"
           >
@@ -147,9 +147,8 @@ export default function Header() {
 
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-white/10 bg-gradient-to-b from-black/95 via-black/90 to-black/80 backdrop-blur-xl shadow-[0_35px_45px_rgba(0,0,0,0.65)]">
-          <nav className="container mx-auto px-6 py-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-4">
-              <LanguageToggle />
+          <nav className="container mx-auto px-6 py-6 flex flex-col gap-4" dir={direction}>
+            <div className="flex items-center justify-between gap-4" dir="ltr">
               <Button
                 asChild
                 variant="default"
@@ -160,6 +159,7 @@ export default function Header() {
                   {t("actions.contact")}
                 </a>
               </Button>
+              <LanguageToggle />
             </div>
             {navLinks.map((link) => {
               const isActive = isActiveLink(link.href);
