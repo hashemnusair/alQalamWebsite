@@ -50,6 +50,7 @@ export default function Header() {
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
   const direction = i18n.dir();
   const contactAlignment = direction === "rtl" ? "mr-auto" : "ml-auto";
+  const mobileMenuPosition = direction === "rtl" ? "left-0" : "right-0";
   
   return (
     <header
@@ -132,7 +133,10 @@ export default function Header() {
           </div>
 
           <button
-            className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 p-2"
+            className={cn(
+              "md:hidden absolute top-1/2 -translate-y-1/2 p-2",
+              mobileMenuPosition
+            )}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             data-testid="button-mobile-menu"
           >
