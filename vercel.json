@@ -3,17 +3,25 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
   "functions": {
-    "api/**/*": {
+    "api/**/*.ts": {
       "includeFiles": "{server,shared}/**"
     }
   },
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "source": "/api/cars/:id",
+      "destination": "/api/cars/[id]"
     },
     {
-      "source": "/(.*)",
+      "source": "/api/cars",
+      "destination": "/api/cars/index"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/health"
+    },
+    {
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
