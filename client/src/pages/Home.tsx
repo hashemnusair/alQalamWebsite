@@ -3,13 +3,17 @@ import Hero from "@/components/Hero";
 import FeaturedCars from "@/components/FeaturedCars";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import Footer from "@/components/Footer";
-import { useCars } from "@/hooks/useCars";
+import { usePaginatedCars } from "@/hooks/useCars";
 import { useTranslation } from "react-i18next";
 
 export default function Home() {
-  const { data: cars, isLoading, error } = useCars();
+  const { data, isLoading, error } = usePaginatedCars({
+    page: 1,
+    pageSize: 6,
+    filters: {},
+  });
   const hasError = Boolean(error);
-  const featuredCars = (cars ?? []).slice(0, 6);
+  const featuredCars = data?.items ?? [];
   const { t } = useTranslation();
 
   const renderStatus = (message: string) => (

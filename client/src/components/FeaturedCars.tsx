@@ -1,9 +1,9 @@
 import CarCard from "./CarCard";
-import type { Car } from "@shared/schema";
+import type { Car, CarListItem } from "@shared/schema";
 import { useTranslation } from "react-i18next";
 
 interface FeaturedCarsProps {
-  cars: Car[];
+  cars: Array<Car | CarListItem>;
 }
 
 export default function FeaturedCars({ cars }: FeaturedCarsProps) {

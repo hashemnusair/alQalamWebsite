@@ -9,6 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     if (req.method === "GET") {
+      res.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=86400");
       const car = await storage.getCar(id);
       if (!car) return res.status(404).json({ message: "Car not found" });
       return res.status(200).json(car);

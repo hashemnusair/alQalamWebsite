@@ -5,6 +5,11 @@ import pg from "pg";
 const { Pool } = pg;
 import * as schema from "../shared/schema.js";
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __qalam_pg_pool: pg.Pool | undefined;
+}
+
 
 function loadEnvFromFile() {
   if (process.env.DATABASE_URL) {
@@ -66,11 +71,16 @@ const rejectUnauthorized =
     : !isSupabasePooler;
 const ssl = useSsl ? { rejectUnauthorized } : false;
 
-export const pool = new Pool({
-  connectionString,
-  max: parseInt(process.env.PG_POOL_SIZE ?? "10", 10),
-  ssl,
-});
+// Reuse the pool across warm serverless invocations to avoid reconnect overhead.
+export const pool =
+  globalThis.__qalam_pg_pool ??
+  new Pool({
+    connectionString,
+    max: parseInt(process.env.PG_POOL_SIZE ?? "10", 10),
+    ssl,
+  });
+
+globalThis.__qalam_pg_pool = pool;
 
 export const db = drizzle(pool, { schema });
 

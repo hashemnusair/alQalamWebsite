@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,9 +9,18 @@ import CarFilters, {
   FilterValues,
   createDefaultFilterValues,
 } from "@/components/CarFilters";
-import { getCarSearchText } from "@/data/car-translations";
 import { formatNumber } from "@/lib/locale";
-import { useCars } from "@/hooks/useCars";
+import { usePaginatedCars, usePrefetchCars, usePrefetchCar } from "@/hooks/useCars";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import type { CarFilters as ApiCarFilters } from "@shared/schema";
 
 function roundDown(value: number, step: number) {
   return Math.floor(value / step) * step;
@@ -21,84 +30,136 @@ function roundUp(value: number, step: number) {
   return Math.ceil(value / step) * step;
 }
 
+function buildPageRange(current: number, totalPages: number): Array<number | "ellipsis"> {
+  // Best UX: always show first/last, current, and neighbors with ellipses.
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  const pages = new Set<number>();
+  pages.add(1);
+  pages.add(totalPages);
+  pages.add(current);
+  pages.add(Math.max(1, current - 1));
+  pages.add(Math.min(totalPages, current + 1));
+
+  // keep 2 and totalPages-1 when near edges
+  if (current <= 3) {
+    pages.add(2);
+    pages.add(3);
+  }
+  if (current >= totalPages - 2) {
+    pages.add(totalPages - 1);
+    pages.add(totalPages - 2);
+  }
+
+  const sorted = Array.from(pages).filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+  const out: Array<number | "ellipsis"> = [];
+  for (let i = 0; i < sorted.length; i++) {
+    const p = sorted[i];
+    const prev = sorted[i - 1];
+    if (prev !== undefined && p - prev > 1) out.push("ellipsis");
+    out.push(p);
+  }
+  return out;
+}
+
 export default function Inventory() {
   const [filters, setFilters] = useState<FilterValues>(() => createDefaultFilterValues());
   const [hasUserChangedFilters, setHasUserChangedFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 24;
   const { t, i18n } = useTranslation();
 
-  const { data: cars, isLoading, error } = useCars();
+  const apiFilters: ApiCarFilters = useMemo(
+    () => ({
+      makes: filters.makes,
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      minYear: filters.yearRange[0],
+      maxYear: filters.yearRange[1],
+      minMileage: filters.mileageRange[0],
+      maxMileage: filters.mileageRange[1],
+      fuelTypes: filters.fuelTypes,
+      search: filters.search.trim() ? filters.search.trim() : undefined,
+    }),
+    [filters],
+  );
+
+  const query = usePaginatedCars({ page, pageSize, filters: apiFilters });
+  const { data, isLoading, isFetching, error } = query;
   const hasError = Boolean(error);
-  const inventory = cars ?? [];
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const prefetchCars = usePrefetchCars();
+  const prefetchCar = usePrefetchCar();
+
+  const gridTopRef = useRef<HTMLDivElement | null>(null);
+  const lastPageChangeRef = useRef<number>(page);
 
   const bounds: FilterBounds = useMemo(() => {
-    if (inventory.length === 0) return DEFAULT_FILTER_BOUNDS;
+    const facets = data?.facets;
+    if (!facets) return DEFAULT_FILTER_BOUNDS;
 
-    const prices = inventory
-      .map((car) => parseFloat(car.price))
-      .filter((value) => Number.isFinite(value)) as number[];
-    const years = inventory.map((car) => car.year).filter((value) => Number.isFinite(value)) as number[];
-    const mileages = inventory.map((car) => car.mileage).filter((value) => Number.isFinite(value)) as number[];
+    const minPrice = Math.max(0, roundDown(facets.bounds.price.min, 1000));
+    const maxPrice = Math.max(minPrice, roundUp(facets.bounds.price.max, 1000));
 
-    const rawMinPrice = prices.length ? Math.min(...prices) : DEFAULT_FILTER_BOUNDS.price.min;
-    const rawMaxPrice = prices.length ? Math.max(...prices) : DEFAULT_FILTER_BOUNDS.price.max;
+    const minYear = Math.min(facets.bounds.year.min, facets.bounds.year.max);
+    const maxYear = Math.max(facets.bounds.year.min, facets.bounds.year.max);
 
-    const minPrice = Math.max(0, roundDown(rawMinPrice, 1000));
-    const maxPrice = Math.max(minPrice, roundUp(rawMaxPrice, 1000));
-
-    const rawMinYear = years.length ? Math.min(...years) : DEFAULT_FILTER_BOUNDS.year.min;
-    const rawMaxYear = years.length ? Math.max(...years) : DEFAULT_FILTER_BOUNDS.year.max;
-
-    const minYear = Math.min(rawMinYear, rawMaxYear);
-    const maxYear = Math.max(rawMinYear, rawMaxYear);
-
-    const rawMaxMileage = mileages.length ? Math.max(...mileages) : DEFAULT_FILTER_BOUNDS.mileage.max;
-    const maxMileage = Math.max(DEFAULT_FILTER_BOUNDS.mileage.min, roundUp(rawMaxMileage, 1000));
+    const maxMileage = Math.max(DEFAULT_FILTER_BOUNDS.mileage.min, roundUp(facets.bounds.mileage.max, 1000));
 
     return {
       price: { min: minPrice, max: maxPrice },
       year: { min: minYear, max: maxYear },
       mileage: { min: DEFAULT_FILTER_BOUNDS.mileage.min, max: maxMileage },
     };
-  }, [inventory]);
+  }, [data?.facets]);
 
-  const makeOptions = useMemo(() => {
-    const makes = inventory.map((car) => car.make).filter(Boolean);
-    return Array.from(new Set(makes)).sort((a, b) => a.localeCompare(b));
-  }, [inventory]);
+  const makeOptions = useMemo(() => data?.facets?.makes ?? [], [data?.facets?.makes]);
 
   useEffect(() => {
     // Initialize the default filter ranges from the actual dataset once it's loaded.
     // This prevents hidden cars due to static bounds (e.g., future model years, high prices).
     if (hasUserChangedFilters) return;
-    if (inventory.length === 0) return;
+    if (!data?.facets) return;
     setFilters(createDefaultFilterValues(bounds));
-  }, [bounds, hasUserChangedFilters, inventory.length]);
+  }, [bounds, data?.facets, hasUserChangedFilters]);
 
   const handleFilterChange = (next: FilterValues) => {
     setHasUserChangedFilters(true);
     setFilters(next);
+    setPage(1);
   };
 
-  const filteredCars = useMemo(() => {
-    return inventory.filter((car) => {
-      if (filters.makes.length > 0 && !filters.makes.includes(car.make)) return false;
-      const price = parseFloat(car.price);
-      if (price < filters.minPrice || price > filters.maxPrice) return false;
-      const [minYear, maxYear] = filters.yearRange;
-      if (car.year < minYear || car.year > maxYear) return false;
-      const [minMileage, maxMileage] = filters.mileageRange;
-      if (car.mileage < minMileage || car.mileage > maxMileage) return false;
-      if (filters.fuelTypes.length > 0 && !filters.fuelTypes.includes(car.fuel)) return false;
-      if (filters.search.trim()) {
-        const term = filters.search.trim().toLowerCase();
-        const haystack = getCarSearchText(car);
-        if (!haystack.includes(term)) return false;
-      }
-      return true;
-    });
-  }, [filters, inventory]);
+  // Prefetch next/prev pages for instant-feeling pagination.
+  useEffect(() => {
+    if (!data) return;
+    if (page < totalPages) prefetchCars({ page: page + 1, pageSize, filters: apiFilters });
+    if (page > 1) prefetchCars({ page: page - 1, pageSize, filters: apiFilters });
+  }, [apiFilters, data, page, pageSize, prefetchCars, totalPages]);
 
-  const formattedTotalVehicles = formatNumber(inventory.length, i18n.language);
+  // Smooth scroll rules on page change: only scroll if the grid is off-screen.
+  useEffect(() => {
+    if (lastPageChangeRef.current === page) return;
+    lastPageChangeRef.current = page;
+
+    const el = gridTopRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const isVisible = rect.top >= 80 && rect.top <= window.innerHeight * 0.35;
+    if (isVisible) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [page]);
+
+  const formattedTotalVehicles = formatNumber(total, i18n.language);
+  const pageRange = useMemo(() => buildPageRange(page, totalPages), [page, totalPages]);
+
+  const goToPage = (nextPage: number) => {
+    const safe = Math.min(Math.max(1, nextPage), totalPages);
+    if (safe === page) return;
+    setPage(safe);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 via-white to-white">
@@ -130,7 +191,7 @@ export default function Inventory() {
                   : hasError
                     ? t("status.errorInventory")
                     : t("inventory.availableCount", {
-                      count: inventory.length,
+                      count: total,
                       formatted: formattedTotalVehicles,
                     })}
               </p>
@@ -141,11 +202,31 @@ export default function Inventory() {
             <CarFilters
               filters={filters}
               onFilterChange={handleFilterChange}
-              resultCount={filteredCars.length}
+              resultCount={total}
               bounds={bounds}
               makeOptions={makeOptions}
             />
           </div>
+
+          {!isLoading && !hasError && total > 0 && (
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground">
+                {t("inventory.availableCount", { count: total, formatted: formattedTotalVehicles })} ·{" "}
+                {t("inventory.pageOf", { page, totalPages, defaultValue: `Page ${page} of ${totalPages}` })}
+              </p>
+              <div className="flex items-center gap-2">
+                <div
+                  className={`h-2 w-2 rounded-full transition ${
+                    isFetching ? "bg-primary animate-pulse" : "bg-muted-foreground/30"
+                  }`}
+                  aria-hidden
+                />
+                <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                  {isFetching ? t("status.loadingInventory") : t("status.ready", { defaultValue: "Ready" })}
+                </span>
+              </div>
+            </div>
+          )}
 
           {isLoading && (
             <div className="text-center py-16">
@@ -159,21 +240,128 @@ export default function Inventory() {
             </div>
           )}
 
-          {!isLoading && !hasError && filteredCars.length > 0 ? (
+          {!isLoading && !hasError && totalPages > 1 && (
+            <div className="mb-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        goToPage(page - 1);
+                      }}
+                      aria-disabled={page <= 1}
+                      className={page <= 1 ? "pointer-events-none opacity-50" : undefined}
+                    />
+                  </PaginationItem>
+                  {pageRange.map((p, idx) =>
+                    p === "ellipsis" ? (
+                      <PaginationItem key={`ellipsis-${idx}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={p}>
+                        <PaginationLink
+                          href="#"
+                          isActive={p === page}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            goToPage(p);
+                          }}
+                        >
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        goToPage(page + 1);
+                      }}
+                      aria-disabled={page >= totalPages}
+                      className={page >= totalPages ? "pointer-events-none opacity-50" : undefined}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+
+          <div ref={gridTopRef} />
+
+          {!isLoading && !hasError && items.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCars.map((car) => (
-                <CarCard key={car.id} car={car} />
+              {items.map((car) => (
+                <CarCard
+                  key={car.id}
+                  car={car}
+                  onPointerEnter={() => prefetchCar(car.id)}
+                  onPointerDown={() => prefetchCar(car.id)}
+                />
               ))}
             </div>
           ) : null}
 
-          {!isLoading && !hasError && filteredCars.length === 0 && (
+          {!isLoading && !hasError && items.length === 0 && (
             <div className="text-center py-16">
               <p className="text-lg text-muted-foreground">
-                {inventory.length === 0
-                  ? t("status.emptyInventory")
-                  : t("inventory.emptyState")}
+                {t("inventory.emptyState")}
               </p>
+            </div>
+          )}
+
+          {!isLoading && !hasError && totalPages > 1 && (
+            <div className="mt-10">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        goToPage(page - 1);
+                      }}
+                      aria-disabled={page <= 1}
+                      className={page <= 1 ? "pointer-events-none opacity-50" : undefined}
+                    />
+                  </PaginationItem>
+                  {pageRange.map((p, idx) =>
+                    p === "ellipsis" ? (
+                      <PaginationItem key={`ellipsis-bottom-${idx}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={`bottom-${p}`}>
+                        <PaginationLink
+                          href="#"
+                          isActive={p === page}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            goToPage(p);
+                          }}
+                        >
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        goToPage(page + 1);
+                      }}
+                      aria-disabled={page >= totalPages}
+                      className={page >= totalPages ? "pointer-events-none opacity-50" : undefined}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </div>

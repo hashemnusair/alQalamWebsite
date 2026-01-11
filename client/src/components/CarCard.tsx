@@ -3,16 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Gauge, Fuel, Settings, Zap } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
-import type { Car } from "@shared/schema";
+import type { Car, CarListItem } from "@shared/schema";
 import { useTranslation } from "react-i18next";
 import { formatNumber, toTranslationKey } from "@/lib/locale";
 import { getCarImages } from "@/lib/car-images";
 
 interface CarCardProps {
-  car: Car;
+  car: Car | CarListItem;
+  onPointerEnter?: () => void;
+  onPointerDown?: () => void;
 }
 
-export default function CarCard({ car }: CarCardProps) {
+export default function CarCard({ car, onPointerEnter, onPointerDown }: CarCardProps) {
   const whatsappNumber = "+962791234567";
   const { t, i18n } = useTranslation();
   const whatsappMessage = t("whatsapp.carInterest", {
@@ -35,7 +37,12 @@ export default function CarCard({ car }: CarCardProps) {
   const primaryImage = carImages[0];
 
   return (
-    <Card className="overflow-hidden hover-elevate group" data-testid={`card-car-${car.id}`}>
+    <Card
+      className="overflow-hidden hover-elevate group"
+      data-testid={`card-car-${car.id}`}
+      onPointerEnter={onPointerEnter}
+      onPointerDown={onPointerDown}
+    >
       <a
         href={`/car/${car.id}`}
         onClick={(e) => {
