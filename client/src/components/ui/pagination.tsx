@@ -8,7 +8,7 @@ const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
     role="navigation"
     aria-label="pagination"
-    className={cn("mx-auto flex w-full justify-center", className)}
+    className={cn("mx-auto flex w-full justify-center px-4", className)}
     {...props}
   />
 )
@@ -20,7 +20,7 @@ const PaginationContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ul
     ref={ref}
-    className={cn("flex flex-row items-center gap-2", className)}
+    className={cn("flex flex-row flex-wrap items-center justify-center gap-1.5 sm:gap-2", className)}
     {...props}
   />
 ))
@@ -71,7 +71,7 @@ const PaginationPrevious = ({
   <a
     aria-label="Go to previous page"
     className={cn(
-      "inline-flex h-10 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-all duration-200 select-none",
+      "inline-flex h-10 items-center justify-center gap-1 rounded-full px-3 sm:px-4 text-sm font-semibold transition-all duration-200 select-none",
       "border border-slate-200 bg-white text-slate-700 shadow-sm",
       "hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 hover:shadow-md",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2",
@@ -92,7 +92,7 @@ const PaginationNext = ({
   <a
     aria-label="Go to next page"
     className={cn(
-      "inline-flex h-10 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-all duration-200 select-none",
+      "inline-flex h-10 items-center justify-center gap-1 rounded-full px-3 sm:px-4 text-sm font-semibold transition-all duration-200 select-none",
       "border border-slate-200 bg-white text-slate-700 shadow-sm",
       "hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 hover:shadow-md",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2",
